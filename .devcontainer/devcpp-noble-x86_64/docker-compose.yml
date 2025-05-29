@@ -1,0 +1,14 @@
+services:
+  dev-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: devcpp-noble-x86_64-image:latest
+    container_name: devcpp-noble-x86_64
+    command: sleep infinity
+    volumes:
+      - .:/workspace:cached
+      - build_dir:/build
+volumes:
+  build_dir:
+    name: devcpp_noble_x86_64_build_dir

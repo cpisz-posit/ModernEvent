@@ -1,0 +1,31 @@
+{
+  "name": "devcpp-noble-x86_64",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "dev-app",
+  "overrideCommand": false,
+  "shutdownAction": "stopCompose",
+  "workspaceFolder": "/workspace",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+    "source=build_dir,target=/build,type=volume"
+  ],
+  "postCreateCommand": "bash -ilc 'conan profile detect && conan install . --output-folder=/build --build=missing -s compiler.cppstd=gnu20 --settings=build_type=Debug'",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "cmake.configureEnvironment": {
+          "GWT_XMX": "-Xmx1000M",
+          "GWT_XSS": "-Xss16M",
+          "GWT_BUILD_ALL": "NO"
+        },
+        "cmake.parallelJobs": 7,
+        "extensions.verifySignature": false
+      },
+      "extensions": [
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.cmake-tools",
+        "ms-python.python"
+      ]
+    }
+  }
+}

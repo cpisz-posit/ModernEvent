@@ -1,0 +1,14 @@
+services:
+  dev-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: devcpp-jammy-x86_64-image:latest
+    container_name: dev-jammy-x86_64
+    command: sleep infinity
+    volumes:
+      - .:/workspace:cached
+      - build_dir:/build
+volumes:
+  build_dir:
+    name: devcpp_jammy_x86_64_build_dir
