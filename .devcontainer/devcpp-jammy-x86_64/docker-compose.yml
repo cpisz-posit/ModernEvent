@@ -7,7 +7,7 @@ services:
     container_name: dev-jammy-x86_64
     command: sleep infinity
     volumes:
-      - .:/workspace:cached
+      - ../..:/workspace:cached
       - build_dir:/build
 volumes:
   build_dir:
