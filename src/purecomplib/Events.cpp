@@ -2,10 +2,13 @@
 #include <iomanip>
 
 
-namespace purecomplib {
+namespace purecomplib 
+{
 
-void handleAuthEvent(const AuthEvent & authEvent) {
-    std::visit([](auto&& concreteEvent) {
+void handleAuthEvent(const AuthEvent & authEvent)
+{
+    std::visit([](auto&& concreteEvent) 
+    {
         using T = std::decay_t<decltype(concreteEvent)>;
 
         // Handle event base data
@@ -33,8 +36,10 @@ void handleAuthEvent(const AuthEvent & authEvent) {
     }, authEvent);
 }
 
-void handleSessionEvent(const SessionEvent & sessionEvent) {
-    std::visit([](auto&& concreteEvent) {
+void handleSessionEvent(const SessionEvent & sessionEvent)
+{
+    std::visit([](auto&& concreteEvent)
+    {
         using T = std::decay_t<decltype(concreteEvent)>;
 
         // Handle event base data
@@ -63,15 +68,19 @@ void handleSessionEvent(const SessionEvent & sessionEvent) {
     }, sessionEvent);
 }
 
-void handleEvent(const Event & event) {   
+void handleEvent(const Event & event)
+{
     std::visit([&](auto&& subtype) {
         using T = std::decay_t<decltype(subtype)>;
-        if constexpr (std::is_same_v<T, AuthEvent>) {
+        if constexpr (std::is_same_v<T, AuthEvent>)
+        {
             handleAuthEvent(subtype);
-        } else if constexpr (std::is_same_v<T, SessionEvent>) {
+        } 
+        else if constexpr (std::is_same_v<T, SessionEvent>)
+        {
             handleSessionEvent(subtype);
         }
     }, event);
 }
 
-}
+} // namespace purecomplib

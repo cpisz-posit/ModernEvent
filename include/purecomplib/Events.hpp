@@ -6,9 +6,11 @@
 #include <string>
 #include <variant>
 
-namespace purecomplib {
+namespace purecomplib 
+{
 
-struct EventBaseData {
+struct EventBaseData 
+{
     // Data in common to all events
     short pid_;                                          // Process ID reporting the event
     std::chrono::system_clock::time_point timestamp_;    // Timestamp the event occured
@@ -74,7 +76,7 @@ void handleAuthEvent(const AuthEvent & authEvent);
 void handleSessionEvent(const SessionEvent & sessionEvent);
 
 /* Dispatcher for top level event into subtype handlers */
-void handleEvent(const Event & e);
+void handleEvent(const Event & event);
 
 } // end namespace eventlib
 

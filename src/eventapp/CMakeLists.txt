@@ -8,5 +8,6 @@ add_executable(eventapp
 )
 
 target_link_libraries(eventapp PUBLIC
+    classiclib
     purecomplib
 )
