@@ -5,6 +5,6 @@ set (CMAKE_CXX_STANDARD 20)
 
 find_package(GTest REQUIRED)
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/src/eventlib)
+add_subdirectory(${CMAKE_SOURCE_DIR}/src/purecomplib)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/eventapp)
 add_subdirectory(${CMAKE_SOURCE_DIR}/test)

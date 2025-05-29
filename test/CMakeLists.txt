@@ -9,7 +9,7 @@ add_executable(eventtest
 )
 
 target_link_libraries(eventtest PUBLIC
-    eventlib
+    purecomplib
     GTest::gtest
     GTest::gmock
 )

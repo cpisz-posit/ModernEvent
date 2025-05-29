@@ -1,17 +1,13 @@
-#include "eventlib/Events.hpp"
+#include "purecomplib/Events.hpp"
 
 #include <iostream>
 
 
 int main(int argc, char ** argv)
 {
-    eventlib::Event authLoginEvent{
-        9876,
-        std::chrono::system_clock::now(),
-        eventlib::AuthLoginEvent{"1234"}
-    };
-    
-    eventlib::handleEvent(authLoginEvent);
+    // Ain't this the ugliest constructor you've ever seen?
+    purecomplib::AuthLoginEvent authLoginEvent{ {{9876, std::chrono::system_clock::now()} , "fred"} };
+    purecomplib::handleEvent(authLoginEvent);
 
     return 0;
 }
