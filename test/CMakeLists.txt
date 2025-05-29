@@ -3,13 +3,13 @@ include_directories(
     ${GTEST_INCLUDE_DIRS}
 )
 
-add_executable(hellotest
+add_executable(eventtest
     main.cpp
     testSessionEvents.cpp
 )
 
-target_link_libraries(hellotest PUBLIC
-    hellolib
+target_link_libraries(eventtest PUBLIC
+    eventlib
     GTest::gtest
     GTest::gmock
 )

@@ -1,5 +1,5 @@
 {
-  "name": "devcpp-jammy-x86_64",
+  "name": "modernevent-noble-x86_64",
   "dockerComposeFile": "docker-compose.yml",
   "service": "dev-app",
   "overrideCommand": false,

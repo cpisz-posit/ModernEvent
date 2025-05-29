@@ -3,10 +3,10 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/include
 )
 
-add_executable(helloapp
+add_executable(eventapp
     main.cpp
 )
 
-target_link_libraries(helloapp PUBLIC
-    hellolib
+target_link_libraries(eventapp PUBLIC
+    eventlib
 )

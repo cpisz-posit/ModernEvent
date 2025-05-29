@@ -1,8 +1,8 @@
-#include "hellolib/Events.hpp"
+#include "eventlib/Events.hpp"
 #include <iomanip>
 
 
-namespace hellolib {
+namespace eventlib {
 
 void handleAuthEvent(const AuthEvent & authEvent) {
     std::visit([](auto&& concreteEvent) {

@@ -1,20 +1,4 @@
-# To build the docker image:
-# docker build -t devenvcpp/ubuntu:0.1 .
-#
-# To create the docker container and open the terminal
-# This will create a volume for us to persist our files. We can mount this volume in other containers later if we like.
-#   The volume differs from mounting a directory from the host OS, in that docker will manage it and we won't access it from the host. 
-#   That way we don't have to worry about line endings and such.
-# docker run --name devenvcpp --user developer -it --mount type=volume,src=vol_devenvcpp,dst=/home/developer/volume devenvcpp/ubuntu:0.1 bash
-# 
-# When done, just 'exit'
-# 
-# To start the already created docker container and open the terminal
-# docker start --attach --interactive devenvcpp
-#
-# When done, just 'exit'
-
-FROM ubuntu:24.04
+FROM ubuntu:22.04
 SHELL ["/bin/bash", "-c"]
 MAINTAINER ChristopherPisz
 LABEL Description="Chris' Ubuntu based development environment for C++"
@@ -67,4 +51,3 @@ WORKDIR /workspace
 
 # Activate venv for interactive shells (for the user)
 RUN echo 'source /opt/venv/bin/activate' >> /home/${USERNAME}/.bashrc
-

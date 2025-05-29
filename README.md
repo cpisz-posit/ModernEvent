@@ -50,5 +50,5 @@ cmake --build .
 # Run test suite outside IDE
 from the build dir
 ```
-test/hellotest
+test/eventtest
 ```

@@ -1,12 +1,12 @@
-#ifndef HELLOLIB_EVENTS_HPP
-#define HELLOLIB_EVENTS_HPP
+#ifndef EVENTLIB_EVENTS_HPP
+#define EVENTLIB_EVENTS_HPP
 
 #include <chrono>
 #include <iostream>
 #include <string>
 #include <variant>
 
-namespace hellolib {
+namespace eventlib {
 
 struct SessionEventMetaData
 {
@@ -68,6 +68,6 @@ void handleSessionEvent(const SessionEvent & sessionEvent);
 /* Dispatcher for top level event into subtype handlers */
 void handleEvent(const Event & e);
 
-} // end namespace hellolib
+} // end namespace eventlib
 
-#endif // _HELLOLIB_EVENTS_HPP
+#endif // _EVENTLIB_EVENTS_HPP
