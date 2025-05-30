@@ -1,5 +1,6 @@
 #include "classiclib/Events.hpp"
 #include <iomanip>
+#include <stdexcept>
 
 
 namespace classiclib {
@@ -38,15 +39,23 @@ AuthLogoutEvent::AuthLogoutEvent(short pid, std::chrono::system_clock::time_poin
     AuthEventBase(AUTH_LOGOUT, pid, timestamp, userId)
 {}
 
-void handleAuthEvent(const AuthEventBase * authEvent)
+void handleAuthEvent(const AuthEventBase * authEvent, std::ostream & out)
 {
-    std::cout << "PID is " << authEvent->pid_ << std::endl;
+    if(!out)
+    {
+        throw std::runtime_error("Output stream is not valid");
+    }
+    
+    out << "PID is " << authEvent->pid_ << std::endl;
 
     std::time_t time = std::chrono::system_clock::to_time_t(authEvent->timestamp_);
     std::tm tm = *std::localtime(&time); // Convert to local time
-    std::cout << "Timestamp is " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl;
+    out << "Timestamp is " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl;
 
-    std::cout << "User is " << authEvent->userId_ << "\n";
+    auto processAuthEventData = [&out](const AuthEventBase * authEvent)
+    {
+        out << "User is " << authEvent->userId_ << "\n";
+    };
 
     switch(authEvent->type_)
     {
@@ -61,6 +70,8 @@ void handleAuthEvent(const AuthEventBase * authEvent)
             { 
                 throw std::runtime_error("Cast to auth login event type failed");
             }
+
+            processAuthEventData(loginEvent);
 
             // Do specific things with the login event
             break;
@@ -77,6 +88,8 @@ void handleAuthEvent(const AuthEventBase * authEvent)
                 throw std::runtime_error("Cast to auth logout event type failed");
             }
 
+            processAuthEventData(logoutEvent);
+
             // Do specific things with the logout event
             break;
         }
@@ -88,15 +101,23 @@ void handleAuthEvent(const AuthEventBase * authEvent)
     }
 }
 
-void handleSessionEvent(const SessionEventBase * sessionEvent)
+void handleSessionEvent(const EventBase * sessionEvent, std::ostream & out)
 {
-    std::cout << "PID is " << sessionEvent->pid_ << std::endl;
+    if(!out)
+    {
+        throw std::runtime_error("Output stream is not valid");
+    }
+
+    out << "PID is " << sessionEvent->pid_ << std::endl;
 
     std::time_t time = std::chrono::system_clock::to_time_t(sessionEvent->timestamp_);
     std::tm tm = *std::localtime(&time); // Convert to local time
-    std::cout << "Timestamp is " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl;
+    out << "Timestamp is " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl;
 
-    std::cout << "Session id is " << sessionEvent->sessionId_ << std::endl;
+    auto processSessionEventData = [&out](const SessionEventBase * sessionEvent)
+    {
+        out << "Session id is " << sessionEvent->sessionId_ << std::endl;
+    };
 
     switch(sessionEvent->type_)
     {
@@ -111,6 +132,8 @@ void handleSessionEvent(const SessionEventBase * sessionEvent)
             { 
                 throw std::runtime_error("Cast to session start event type failed");
             }
+
+            processSessionEventData(startEvent);
 
             // Do specific things with the start event
             break;
@@ -127,6 +150,8 @@ void handleSessionEvent(const SessionEventBase * sessionEvent)
                 throw std::runtime_error("Cast to session end event type failed");
             }
 
+            processSessionEventData(endEvent);
+
             // Do specific things with the end event
             break;
         }
@@ -138,7 +163,7 @@ void handleSessionEvent(const SessionEventBase * sessionEvent)
     }
 }
 
-void handleEvent(const EventBase * event)
+void handleEvent(const EventBase * event, std::ostream & out)
 {
     switch(event->type_)
     {
@@ -156,7 +181,7 @@ void handleEvent(const EventBase * event)
                 throw std::runtime_error("Cast to session event type failed"); 
             }
 
-            handleSessionEvent(sessionEvent);
+            handleSessionEvent(sessionEvent, out);
             break;
         }
         case EventType::AUTH_LOGIN:
@@ -173,7 +198,7 @@ void handleEvent(const EventBase * event)
                 throw std::runtime_error("Cast to session event type failed"); 
             }
 
-            handleAuthEvent(authEvent);
+            handleAuthEvent(authEvent, out);
             break;
         }
         default:

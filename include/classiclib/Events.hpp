@@ -73,7 +73,7 @@ struct AuthLogoutEvent : public AuthEventBase
 
 
 /* Dispatcher for top level event into subtype handlers */
-void handleEvent(const EventBase * event);
+void handleEvent(const EventBase * event, std::ostream & out);
 
 } // end namespace eventlib
 

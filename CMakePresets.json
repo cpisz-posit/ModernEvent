@@ -2,7 +2,7 @@
     "version": 6,
     "cmakeMinimumRequired": {
       "major": 3,
-      "minor": 22,
+      "minor": 24,
       "patch": 0
     },
     "configurePresets": [
@@ -16,11 +16,47 @@
           "CMAKE_BUILD_TYPE":"Debug",
           "CMAKE_TOOLCHAIN_FILE": "/build/conan_toolchain.cmake"
         }
+      },
+      {
+        "name": "release",
+        "displayName": "Release Config",
+        "description": "Release build using Ninja generator",
+        "generator": "Ninja",
+        "binaryDir": "/build/release",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Release",
+          "CMAKE_TOOLCHAIN_FILE": "/build/conan_toolchain.cmake"
+        }
+      },
+      {
+        "name": "relwithdebuginfo",
+        "displayName": "RelWithDebugInfo",
+        "description": "Build for profiling with debug symbols and optimizations",
+        "generator": "Ninja",
+        "binaryDir": "/build/relwithdebuginfo",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+          "CMAKE_TOOLCHAIN_FILE": "/build/conan_toolchain.cmake"
+        }
       }
     ],
     "buildPresets": [
       {
         "name": "debug",
+        "configurePreset": "debug"
+      },
+      {
+        "name": "release",
+        "configurePreset": "release"
+      },
+      {
+        "name": "relwithdebuginfo",
+        "configurePreset": "relwithdebuginfo"
+      }
+    ],
+    "testPresets": [
+      {
+        "name": "default",
         "configurePreset": "debug"
       }
     ]

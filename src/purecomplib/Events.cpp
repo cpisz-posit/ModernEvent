@@ -1,25 +1,31 @@
 #include "purecomplib/Events.hpp"
 #include <iomanip>
+#include <stdexcept>
 
 
 namespace purecomplib 
 {
 
-void handleAuthEvent(const AuthEvent & authEvent)
+void handleAuthEvent(const AuthEvent & authEvent, std::ostream & out)
 {
-    std::visit([](auto&& concreteEvent) 
+    if(!out)
+    {
+        throw std::runtime_error("Output stream is not valid");
+    }
+
+    std::visit([&out](auto&& concreteEvent) 
     {
         using T = std::decay_t<decltype(concreteEvent)>;
 
         // Handle event base data
-        std::cout << "PID is " << concreteEvent.authBaseData_.eventBaseData_.pid_ << "\n";
+        out << "PID is " << concreteEvent.authBaseData_.eventBaseData_.pid_ << "\n";
 
         std::time_t time = std::chrono::system_clock::to_time_t(concreteEvent.authBaseData_.eventBaseData_.timestamp_);
         std::tm tm = *std::localtime(&time); // Convert to local time
-        std::cout << "Timestamp is " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl;
+        out << "Timestamp is " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl;
 
         // Handle auth event base data
-        std::cout << "User is " << concreteEvent.authBaseData_.userId_ << "\n";
+        out << "User is " << concreteEvent.authBaseData_.userId_ << "\n";
 
         if constexpr (std::is_same_v<T, AuthLoginEvent>)
         {
@@ -31,27 +37,32 @@ void handleAuthEvent(const AuthEvent & authEvent)
         }
         else
         {
-            std::cerr << "Unknown AuthEvent type\n";
+            throw std::runtime_error("Unknown AuthEvent type");
         }
     }, authEvent);
 }
 
-void handleSessionEvent(const SessionEvent & sessionEvent)
+void handleSessionEvent(const SessionEvent & sessionEvent, std::ostream & out)
 {
-    std::visit([](auto&& concreteEvent)
+    if(!out)
+    {
+        throw std::runtime_error("Output stream is not valid");
+    }
+    
+    std::visit([&out](auto&& concreteEvent)
     {
         using T = std::decay_t<decltype(concreteEvent)>;
 
         // Handle event base data
         // concreteEvent.sessionBaseData_.eventBaseData_.pid_  is really inconvenient
-        std::cout << "PID is " << concreteEvent.sessionBaseData_.eventBaseData_.pid_ << "\n";
+        out << "PID is " << concreteEvent.sessionBaseData_.eventBaseData_.pid_ << "\n";
 
         std::time_t time = std::chrono::system_clock::to_time_t(concreteEvent.sessionBaseData_.eventBaseData_.timestamp_);
         std::tm tm = *std::localtime(&time); // Convert to local time
-        std::cout << "Timestamp is " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl;
+        out << "Timestamp is " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl;
 
         // Handle session event base data
-        std::cout << "Session id is " << concreteEvent.sessionBaseData_.sessionId_ << "\n";
+        out << "Session id is " << concreteEvent.sessionBaseData_.sessionId_ << "\n";
 
         if constexpr (std::is_same_v<T, SessionStartEvent>)
         {
@@ -63,22 +74,22 @@ void handleSessionEvent(const SessionEvent & sessionEvent)
         }
         else
         {
-            std::cerr << "Unknown SessionEvent type\n";
+            throw std::runtime_error("Unknown SessionEvent type");
         }
     }, sessionEvent);
 }
 
-void handleEvent(const Event & event)
+void handleEvent(const Event & event, std::ostream & out)
 {
     std::visit([&](auto&& subtype) {
         using T = std::decay_t<decltype(subtype)>;
         if constexpr (std::is_same_v<T, AuthEvent>)
         {
-            handleAuthEvent(subtype);
+            handleAuthEvent(subtype, out);
         } 
         else if constexpr (std::is_same_v<T, SessionEvent>)
         {
-            handleSessionEvent(subtype);
+            handleSessionEvent(subtype, out);
         }
     }, event);
 }

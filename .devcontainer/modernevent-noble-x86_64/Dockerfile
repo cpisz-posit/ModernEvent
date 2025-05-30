@@ -4,8 +4,8 @@ MAINTAINER ChristopherPisz
 LABEL Description="Chris' Ubuntu based development environment for C++"
 
 ARG USERNAME=developer
-ARG USER_UID=999
-ARG USER_GID=$USER_UID
+ARG USER_UID=1001
+ARG USER_GID=1001 # noble uses 1000 for default ubuntu user
 
 # Install all the things we'll need
 #    I am installing git on the container rather than the host, because we are using the volume rather than mounting a directory we share with the host
@@ -18,13 +18,22 @@ RUN apt update && apt -y --no-install-recommends install \
     ssh \
     build-essential \
     clang \
-    cmake \
     ninja-build \
     gdb \
     wget \
     python3 \
     python3-pip \
-    python3-venv
+    python3-venv \
+    apt-transport-https \
+    ca-certificates \
+    gnupg \
+    software-properties-common
+
+# Add the kitware repo so we can get a more recent version of CMake
+RUN wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc | apt-key add - && \
+    apt-add-repository 'deb https://apt.kitware.com/ubuntu/ noble main' && \
+    apt update && \
+    apt install -y cmake
 
 # Create a virtual environment for python
 RUN python3 -m venv /opt/venv
@@ -43,11 +52,14 @@ RUN groupadd --gid $USER_GID $USERNAME && \
 RUN mkdir -p /home/${USERNAME} && chown ${USER_UID}:${USER_GID} /home/${USERNAME}
 
 # Create build directory
-RUN mkdir -p /build && chmod a+rwX /build
+RUN mkdir -p /build && chown -R ${USER_UID}:${USER_GID} /build
+
+# Copy the entrypoint script
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 # Change to the user
 USER $USERNAME
 WORKDIR /workspace
 
-# Activate venv for interactive shells (for the user)
-RUN echo 'source /opt/venv/bin/activate' >> /home/${USERNAME}/.bashrc
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

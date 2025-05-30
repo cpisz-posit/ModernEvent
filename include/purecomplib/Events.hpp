@@ -71,12 +71,8 @@ using AuthEvent = std::variant<AuthLoginEvent, AuthLogoutEvent>;
 using Event = std::variant<SessionEvent, AuthEvent>;
 
 
-/* Subtype handlers called from top level event handeler */
-void handleAuthEvent(const AuthEvent & authEvent);
-void handleSessionEvent(const SessionEvent & sessionEvent);
-
 /* Dispatcher for top level event into subtype handlers */
-void handleEvent(const Event & event);
+void handleEvent(const Event & event, std::ostream & out);
 
 } // end namespace eventlib
 
