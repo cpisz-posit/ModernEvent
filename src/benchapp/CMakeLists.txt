@@ -12,5 +12,6 @@ add_executable(benchapp
 target_link_libraries(benchapp PUBLIC
     classiclib
     purecomplib
+    templatecastlib
     benchmark::benchmark
 )

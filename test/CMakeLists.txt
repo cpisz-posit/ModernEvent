@@ -11,6 +11,7 @@ add_executable(eventtest
 target_link_libraries(eventtest PUBLIC
     classiclib
     purecomplib
+    templatecastlib
     GTest::gtest
     GTest::gmock
 )

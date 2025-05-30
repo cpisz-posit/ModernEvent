@@ -21,6 +21,7 @@ The framework decides the number of iterations automatically based on timing pre
 Using a type identifier to dynamic cast to a concrete type which holds the data of interest
 
 Pros
+- Everyone is familiar with this
 Cons
 - Requires a dynamic_cast
 - Changes to base classes may require changes to all subclasses
@@ -45,22 +46,17 @@ Cons
 My opinion: Not worth it just to circumvent two levels of inheritance.
 
 ## Method 2 - Inheritance but no dynamic cast
-Not implemented yet
-Heard a tale about using template methods to safely (or at least encapsulate the UB danger) of using static_cast instead of dynamic_cast
+Encapsulate a static cast in the base classes via template args and in enum, rather than using a dynamic_cast
+The enum is treates as an int for comparison.
 
 Pros
-- Stuff
+- No dynamic cast
+- Minimal repeat of boilplate code
+- Accessing data 
 Cons
-- Stuff
+- uses virtual
+- If a dev does not use the correct template arguments when creating a new event, this can cause UB.
+- Have to copy paste the template casting code into all superclasses for shared and unique pointers.
 
-My opinion: NA
+My opinion: I like this best so far
 
-## Method 3 - CRTP
-Not implemented yet
-
-Pros
-- Stuff
-Cons
-- Stuff
-
-My opinion: NA

@@ -45,12 +45,6 @@ void handleAuthEvent(const AuthEventBase * authEvent, std::ostream & out)
     {
         throw std::runtime_error("Output stream is not valid");
     }
-    
-    out << "PID is " << authEvent->pid_ << std::endl;
-
-    std::time_t time = std::chrono::system_clock::to_time_t(authEvent->timestamp_);
-    std::tm tm = *std::localtime(&time); // Convert to local time
-    out << "Timestamp is " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl;
 
     auto processAuthEventData = [&out](const AuthEventBase * authEvent)
     {
@@ -108,12 +102,6 @@ void handleSessionEvent(const EventBase * sessionEvent, std::ostream & out)
         throw std::runtime_error("Output stream is not valid");
     }
 
-    out << "PID is " << sessionEvent->pid_ << std::endl;
-
-    std::time_t time = std::chrono::system_clock::to_time_t(sessionEvent->timestamp_);
-    std::tm tm = *std::localtime(&time); // Convert to local time
-    out << "Timestamp is " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl;
-
     auto processSessionEventData = [&out](const SessionEventBase * sessionEvent)
     {
         out << "Session id is " << sessionEvent->sessionId_ << std::endl;
@@ -165,6 +153,17 @@ void handleSessionEvent(const EventBase * sessionEvent, std::ostream & out)
 
 void handleEvent(const EventBase * event, std::ostream & out)
 {
+    if(!out)
+    {
+        throw std::runtime_error("Output stream is not valid");
+    }
+
+    out << "PID is " << event->pid_ << std::endl;
+
+    std::time_t time = std::chrono::system_clock::to_time_t(event->timestamp_);
+    std::tm tm = *std::localtime(&time); // Convert to local time
+    out << "Timestamp is " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl;
+
     switch(event->type_)
     {
         case EventType::SESSION_START:

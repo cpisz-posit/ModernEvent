@@ -7,5 +7,6 @@ find_package(GTest REQUIRED)
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/classiclib)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/purecomplib)
+add_subdirectory(${CMAKE_SOURCE_DIR}/src/templatecastlib)
 add_subdirectory(${CMAKE_SOURCE_DIR}/src/benchapp)
 add_subdirectory(${CMAKE_SOURCE_DIR}/test)

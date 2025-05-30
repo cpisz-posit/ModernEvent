@@ -1,5 +1,6 @@
 #include "classiclib/Events.hpp"
 #include "purecomplib/Events.hpp"
+#include "templatecastlib/Events.hpp"
 
 #include <benchmark/benchmark.h>
 
@@ -48,6 +49,27 @@ void BM_purecomp(benchmark::State & state)
     }
 }
 BENCHMARK(BM_purecomp);
+
+void BM_templatecast(benchmark::State & state)
+{
+    for (auto _ : state)
+    {
+        std::ofstream out("temp.txt", std::ios::out | std::ios::trunc);
+        if (!out)
+        {
+            throw std::runtime_error("Failed to open output file");
+        }
+
+        auto sessionStartEvent = std::unique_ptr<templatecastlib::IEvent>(new templatecastlib::SessionStartEvent{1234, std::chrono::system_clock::now(), "session123"});
+        templatecastlib::handleEvent(sessionStartEvent.get(), out);
+
+        auto authLoginEvent = std::unique_ptr<templatecastlib::IEvent>(new templatecastlib::AuthLoginEvent{9876, std::chrono::system_clock::now(), "fred"});
+        templatecastlib::handleEvent(authLoginEvent.get(), out);
+
+        out.close();
+    }
+}
+BENCHMARK(BM_templatecast);
 
 
 BENCHMARK_MAIN();
