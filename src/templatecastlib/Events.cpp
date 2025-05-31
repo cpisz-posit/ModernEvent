@@ -48,35 +48,17 @@ void handleSessionEvent(const SessionEventBase * sessionEvent, std::ostream & ou
 
     out << "Session id is " << sessionEvent->sessionId_ << "\n";
 
-    switch(sessionEvent->type_)
+    if(auto sessionStartEvent = sessionEvent->cast<SessionStartEvent>())
     {
-        case Event::EventType::SESSION_START:
-        {
-            auto startEvent = sessionEvent->template cast<SessionStartEvent>();
-            if(!startEvent)
-            { 
-                throw std::runtime_error("Cast to session start event type failed");
-            }
-
-            out << "Specific data for session start event: " << startEvent->specificData_ << "\n";
-            break;
-        }
-        case Event::EventType::SESSION_END:
-        {
-            auto endEvent = sessionEvent->template cast<SessionEndEvent>();
-            if(!sessionEvent)
-            { 
-                throw std::runtime_error("Cast to session end event type failed");
-            }
-
-            out << "Specific data for session end event: " << endEvent->specificData_ << "\n";
-            break;
-        }
-        default:
-        {
-            throw std::invalid_argument("Unknown auth event type encountered");
-            break;
-        }
+        out << "Specific data for session start event: " << sessionStartEvent->specificData_ << "\n";
+    }
+    else if(auto sessionEndEvent = sessionEvent->cast<SessionEndEvent>())
+    {
+        out << "Specific data for session end event: " << sessionEndEvent->specificData_ << "\n";
+    }
+    else
+    {
+        throw std::invalid_argument("Unknown session event type encountered");
     }
 }
 
@@ -94,35 +76,17 @@ void handleAuthEvent(const AuthEventBase * authEvent, std::ostream & out)
 
     out << "User is " << authEvent->userId_ << "\n";
 
-    switch(authEvent->type_)
+    if(auto loginEvent = authEvent->cast<AuthLoginEvent>())
     {
-        case Event::EventType::AUTH_LOGIN:
-        {
-            auto loginEvent = authEvent->template cast<AuthLoginEvent>();
-            if(!loginEvent)
-            { 
-                throw std::runtime_error("Cast to auth login event type failed");
-            }
-
-            out << "Specific data for auth login event: " << loginEvent->specificData_ << "\n";
-            break;
-        }
-        case Event::EventType::AUTH_LOGOUT:
-        {
-            auto logoutEvent = authEvent->template cast<AuthLogoutEvent>();
-            if(!logoutEvent)
-            { 
-                throw std::runtime_error("Cast to auth logout event type failed");
-            }
-
-            out << "Specific data for auth logout event: " << logoutEvent->specificData_ << "\n";
-            break;
-        }
-        default:
-        {
-            throw std::invalid_argument("Unknown auth event type encountered");
-            break;
-        }
+        out << "Specific data for auth login event: " << loginEvent->specificData_ << "\n";
+    }
+    else if(auto logoutEvent = authEvent->cast<AuthLogoutEvent>())
+    {
+        out << "Specific data for auth logout event: " << logoutEvent->specificData_ << "\n";
+    }
+    else
+    {
+        throw std::invalid_argument("Unknown auth event type encountered");
     }
 }
 
@@ -143,56 +107,17 @@ void handleEvent(const Event * event, std::ostream & out)
     std::tm tm = *std::localtime(&time); // Convert to local time
     out << "Timestamp is " << std::put_time(&tm, "%Y-%m-%d %H:%M:%S") << std::endl;
 
-    switch(event->eventType())
+    if(auto sessionEvent = event->cast<SessionEventBase>())
     {
-        // Unfortunately, the way we defined the hierarchy currently, we have to know the template params to cast to a 
-        // type between the interface and the concrete type for each case. We could just move/repeat the handling of 
-        // session data members to where we handle the data memebers of the concrete type and pass IEvent * to the subtype handler,
-        // but that could be a lot of code duplication.
-        case Event::EventType::SESSION_START:
-        {
-            auto sessionEvent = event->cast<SessionEventBase>();
-            if (!sessionEvent)
-            {
-                throw std::runtime_error("Cast to session event type failed");
-            }
-            handleSessionEvent(sessionEvent, out);
-            break;
-        }
-        case Event::EventType::SESSION_END:
-        {
-            auto sessionEvent = event->cast<SessionEventBase>();
-            if (!sessionEvent)
-            {
-                throw std::runtime_error("Cast to session event type failed");
-            }
-            handleSessionEvent(sessionEvent, out);
-            break;
-        }
-        case Event::EventType::AUTH_LOGIN:
-        {
-            auto authEvent = event->cast<AuthEventBase>();
-            if (!authEvent)
-            {
-                throw std::runtime_error("Cast to auth event type failed");
-            }
-            handleAuthEvent(authEvent, out);
-            break;
-        }
-        case Event::EventType::AUTH_LOGOUT:
-        {
-            auto authEvent = event->cast<AuthEventBase>();
-            if (!authEvent)
-            {
-                throw std::runtime_error("Cast to auth event type failed");
-            }
-            handleAuthEvent(authEvent, out);
-            break;
-        }
-        default:
-            // Handle unknown event type
-            throw std::invalid_argument("Unknown event type encountered");
-            break;
+        handleSessionEvent(sessionEvent, out);
+    }
+    else if(auto authEvent = event->cast<AuthEventBase>())
+    {
+        handleAuthEvent(authEvent, out);
+    }
+    else
+    {
+        throw std::invalid_argument("Unknown event type encountered");
     }
 }
 
