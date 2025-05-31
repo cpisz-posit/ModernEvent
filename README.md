@@ -34,6 +34,7 @@ Using a type identifier to dynamic cast to a concrete type which holds the data 
 
 Pros
 - Everyone is familiar with this
+
 Cons
 - Requires a dynamic_cast
 - Changes to base classes may require changes to all subclasses
@@ -46,6 +47,7 @@ Pros
 - No virtual dispatch
 - Can add new event types
 - Can add data members to events without effecting other objects
+
 Cons
 - Constructors are complicated: Example: `purecomplib::AuthLoginEvent authLoginEvent{ {{9876, std::chrono::system_clock::now()} , "fred"} };`
 - Accessing member data in superclass is ugly! Example: `concreteEvent.sessionBaseData_.eventBaseData_.pid_`
@@ -60,7 +62,8 @@ The enum is treates as an int for comparison.
 Pros
 - No dynamic cast
 - Minimal repeat of boilplate code
-- Accessing data 
+- Accessing data
+
 Cons
 - uses virtual
 - If a dev does not use the correct template arguments when creating a new event, this can cause UB.
