@@ -49,7 +49,7 @@ Pros
 - Can add data members to events without effecting other objects
 
 Cons
-- Constructors are complicated: Example: `purecomplib::AuthLoginEvent authLoginEvent{ {{9876, std::chrono::system_clock::now()} , "fred"} };`
+- Constructors are complicated: Example: `auto sessionStartEvent = std::make_unique<purecomplib::Event>(purecomplib::SessionEvent{purecomplib::SessionStartEvent{9876, std::chrono::system_clock::now(), "session123", 42}});`
 - Accessing member data in superclass is ugly! Example: `concreteEvent.sessionBaseData_.eventBaseData_.pid_`
 - Error messages are hard to make sense out of
 - Must update variant lists when adding new types.
