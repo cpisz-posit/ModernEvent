@@ -8,34 +8,33 @@
 namespace templatecastlib
 {
 
-IEvent::IEvent(EventType type, short pid, std::chrono::system_clock::time_point timestamp)
+Event::Event(EventType type, short pid, std::chrono::system_clock::time_point timestamp)
     : type_(type)
     , pid_(pid)
     , timestamp_(timestamp)
 {}
 
 SessionStartEvent::SessionStartEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId, int specificData)
-    : SessionEventBase<SessionStartEvent, IEvent::SESSION_START>(IEvent::SESSION_START, pid, timestamp, sessionId)
+    : SessionEventBase(Event::SESSION_START, pid, timestamp, sessionId)
     , specificData_(specificData)
 {}
 
 SessionEndEvent::SessionEndEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId, int specificData)
-    : SessionEventBase<SessionEndEvent, IEvent::SESSION_END>(IEvent::SESSION_END, pid, timestamp, sessionId)
+    : SessionEventBase(Event::SESSION_END, pid, timestamp, sessionId)
     , specificData_(specificData)
 {}
 
 AuthLoginEvent::AuthLoginEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId, int specificData)
-    : AuthEventBase<AuthLoginEvent, IEvent::AUTH_LOGIN>(IEvent::AUTH_LOGIN, pid, timestamp, userId)
+    : AuthEventBase(Event::AUTH_LOGIN, pid, timestamp, userId)
     , specificData_(specificData)
 {}
 
 AuthLogoutEvent::AuthLogoutEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId, int specificData)
-    : AuthEventBase<AuthLogoutEvent, IEvent::AUTH_LOGOUT>(IEvent::AUTH_LOGOUT, pid, timestamp, userId)
+    : AuthEventBase(Event::AUTH_LOGOUT, pid, timestamp, userId)
     , specificData_(specificData)
 {}
 
-template <class T, int TYPE_ID>
-void handleSessionEvent(const SessionEventBase<T, TYPE_ID> * sessionEvent, std::ostream & out)
+void handleSessionEvent(const SessionEventBase * sessionEvent, std::ostream & out)
 {
     if(!sessionEvent)
     {
@@ -51,7 +50,7 @@ void handleSessionEvent(const SessionEventBase<T, TYPE_ID> * sessionEvent, std::
 
     switch(sessionEvent->type_)
     {
-        case IEvent::EventType::SESSION_START:
+        case Event::EventType::SESSION_START:
         {
             auto startEvent = sessionEvent->template cast<SessionStartEvent>();
             if(!startEvent)
@@ -62,7 +61,7 @@ void handleSessionEvent(const SessionEventBase<T, TYPE_ID> * sessionEvent, std::
             out << "Specific data for session start event: " << startEvent->specificData_ << "\n";
             break;
         }
-        case IEvent::EventType::SESSION_END:
+        case Event::EventType::SESSION_END:
         {
             auto endEvent = sessionEvent->template cast<SessionEndEvent>();
             if(!sessionEvent)
@@ -81,8 +80,7 @@ void handleSessionEvent(const SessionEventBase<T, TYPE_ID> * sessionEvent, std::
     }
 }
 
-template <class T, int TYPE_ID>
-void handleAuthEvent(const AuthEventBase<T, TYPE_ID> * authEvent, std::ostream & out)
+void handleAuthEvent(const AuthEventBase * authEvent, std::ostream & out)
 {
     if(!authEvent)
     {
@@ -98,7 +96,7 @@ void handleAuthEvent(const AuthEventBase<T, TYPE_ID> * authEvent, std::ostream &
 
     switch(authEvent->type_)
     {
-        case IEvent::EventType::AUTH_LOGIN:
+        case Event::EventType::AUTH_LOGIN:
         {
             auto loginEvent = authEvent->template cast<AuthLoginEvent>();
             if(!loginEvent)
@@ -109,7 +107,7 @@ void handleAuthEvent(const AuthEventBase<T, TYPE_ID> * authEvent, std::ostream &
             out << "Specific data for auth login event: " << loginEvent->specificData_ << "\n";
             break;
         }
-        case IEvent::EventType::AUTH_LOGOUT:
+        case Event::EventType::AUTH_LOGOUT:
         {
             auto logoutEvent = authEvent->template cast<AuthLogoutEvent>();
             if(!logoutEvent)
@@ -128,7 +126,7 @@ void handleAuthEvent(const AuthEventBase<T, TYPE_ID> * authEvent, std::ostream &
     }
 }
 
-void handleEvent(const IEvent * event, std::ostream & out)
+void handleEvent(const Event * event, std::ostream & out)
 {
     if(!event)
     {
@@ -151,9 +149,9 @@ void handleEvent(const IEvent * event, std::ostream & out)
         // type between the interface and the concrete type for each case. We could just move/repeat the handling of 
         // session data members to where we handle the data memebers of the concrete type and pass IEvent * to the subtype handler,
         // but that could be a lot of code duplication.
-        case IEvent::EventType::SESSION_START:
+        case Event::EventType::SESSION_START:
         {
-            auto sessionEvent = event->cast<SessionEventBase<SessionStartEvent, IEvent::SESSION_START>>();
+            auto sessionEvent = event->cast<SessionEventBase>();
             if (!sessionEvent)
             {
                 throw std::runtime_error("Cast to session event type failed");
@@ -161,9 +159,9 @@ void handleEvent(const IEvent * event, std::ostream & out)
             handleSessionEvent(sessionEvent, out);
             break;
         }
-        case IEvent::EventType::SESSION_END:
+        case Event::EventType::SESSION_END:
         {
-            auto sessionEvent = event->cast<SessionEventBase<SessionEndEvent, IEvent::SESSION_END>>();
+            auto sessionEvent = event->cast<SessionEventBase>();
             if (!sessionEvent)
             {
                 throw std::runtime_error("Cast to session event type failed");
@@ -171,9 +169,9 @@ void handleEvent(const IEvent * event, std::ostream & out)
             handleSessionEvent(sessionEvent, out);
             break;
         }
-        case IEvent::EventType::AUTH_LOGIN:
+        case Event::EventType::AUTH_LOGIN:
         {
-            auto authEvent = event->cast<AuthEventBase<AuthLoginEvent, IEvent::AUTH_LOGIN>>();
+            auto authEvent = event->cast<AuthEventBase>();
             if (!authEvent)
             {
                 throw std::runtime_error("Cast to auth event type failed");
@@ -181,9 +179,9 @@ void handleEvent(const IEvent * event, std::ostream & out)
             handleAuthEvent(authEvent, out);
             break;
         }
-        case IEvent::EventType::AUTH_LOGOUT:
+        case Event::EventType::AUTH_LOGOUT:
         {
-            auto authEvent = event->cast<AuthEventBase<AuthLogoutEvent, IEvent::AUTH_LOGOUT>>();
+            auto authEvent = event->cast<AuthEventBase>();
             if (!authEvent)
             {
                 throw std::runtime_error("Cast to auth event type failed");

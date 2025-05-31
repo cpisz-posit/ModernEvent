@@ -60,10 +60,10 @@ void BM_templatecast(benchmark::State & state)
 
     for (auto _ : state)
     {
-        auto sessionStartEvent = std::unique_ptr<templatecastlib::IEvent>(new templatecastlib::SessionStartEvent{9876, std::chrono::system_clock::now(), "session123", 42});
+        auto sessionStartEvent = std::unique_ptr<templatecastlib::Event>(new templatecastlib::SessionStartEvent{9876, std::chrono::system_clock::now(), "session123", 42});
         templatecastlib::handleEvent(sessionStartEvent.get(), out);
 
-        auto authLoginEvent = std::unique_ptr<templatecastlib::IEvent>(new templatecastlib::AuthLoginEvent{6789, std::chrono::system_clock::now(), "Fred", 42});
+        auto authLoginEvent = std::unique_ptr<templatecastlib::Event>(new templatecastlib::AuthLoginEvent{6789, std::chrono::system_clock::now(), "Fred", 42});
         templatecastlib::handleEvent(authLoginEvent.get(), out);
     }
 
