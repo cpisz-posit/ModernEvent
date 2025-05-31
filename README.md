@@ -52,7 +52,7 @@ Cons
 - Constructors are complicated: Example: `auto sessionStartEvent = std::make_unique<purecomplib::Event>(purecomplib::SessionEvent{purecomplib::SessionStartEvent{9876, std::chrono::system_clock::now(), "session123", 42}});`
 - Accessing member data in superclass is ugly! Example: `concreteEvent.sessionBaseData_.eventBaseData_.pid_`
 - Error messages are hard to make sense out of
-- Must update variant lists when adding new types.
+- Must update variant lists when adding new types. This can be real bad in real world where there are ALOT of types
 - A bit more compile time and artifact size compared to inheritance due to std::visit and std:variant
 
 ## Method 2 - Inheritance but no dynamic cast
@@ -61,11 +61,9 @@ The enum is treates as an int for comparison.
 
 Pros
 - No dynamic cast
-- Minimal repeat of boilplate code
-- Accessing data
+- Access data naturally
 
 Cons
-- uses virtual
 - If a dev does not use the correct template arguments when creating a new event, this can cause UB.
 - Have to copy paste the template casting code into all superclasses for shared and unique pointers.
 
