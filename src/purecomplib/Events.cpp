@@ -3,17 +3,42 @@
 #include <stdexcept>
 
 
-namespace purecomplib 
+namespace purecomplib
 {
 
-void handleAuthEvent(const AuthEvent & authEvent, std::ostream & out)
+SessionStartEvent::SessionStartEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string& sessionId, int someSpecificData)
+    : sessionBaseData_{ {pid, timestamp}, sessionId }
+    , someSpecificData_(someSpecificData)
+{}
+
+SessionEndEvent::SessionEndEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string& sessionId, int someSpecificData)
+    : sessionBaseData_{ {pid, timestamp}, sessionId }
+    , someSpecificData_(someSpecificData)
+{}
+
+AuthLoginEvent::AuthLoginEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string& userId, int someSpecificData)
+    : authBaseData_{ {pid, timestamp}, userId }
+    , someSpecificData_(someSpecificData)
+{}
+
+AuthLogoutEvent::AuthLogoutEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string& userId, int specificData)
+    : authBaseData_{ {pid, timestamp}, userId }
+    , someSpecificData_(specificData)
+{}
+
+void handleAuthEvent(const AuthEvent * authEvent, std::ostream & out)
 {
-    if(!out)
+    if (!authEvent)
     {
-        throw std::runtime_error("Output stream is not valid");
+        throw std::invalid_argument("authEvent pointer is null");
     }
 
-    std::visit([&out](auto&& concreteEvent) 
+    if(!out)
+    {
+        throw std::invalid_argument("Output stream is not valid");
+    }
+
+    std::visit([&out](auto && concreteEvent) 
     {
         using T = std::decay_t<decltype(concreteEvent)>;
 
@@ -29,24 +54,29 @@ void handleAuthEvent(const AuthEvent & authEvent, std::ostream & out)
 
         if constexpr (std::is_same_v<T, AuthLoginEvent>)
         {
-            // Do things specific to AuthLoginEvent here
+            out << "Some specific data for AuthLoginEvent: " << concreteEvent.someSpecificData_ << "\n";
         }
         else if constexpr (std::is_same_v<T, AuthLogoutEvent>)
         {
-            // Do things specific to AuthLogoutEvent here
+            out << "Some specific data for AuthLogoutEvent: " << concreteEvent.someSpecificData_ << "\n";
         }
         else
         {
             throw std::runtime_error("Unknown AuthEvent type");
         }
-    }, authEvent);
+    }, *authEvent);
 }
 
-void handleSessionEvent(const SessionEvent & sessionEvent, std::ostream & out)
+void handleSessionEvent(const SessionEvent * sessionEvent, std::ostream & out)
 {
+    if (!sessionEvent)
+    {
+        throw std::invalid_argument("sessionEvent pointer is null");
+    }
+
     if(!out)
     {
-        throw std::runtime_error("Output stream is not valid");
+        throw std::invalid_argument("Output stream is not valid");
     }
     
     std::visit([&out](auto&& concreteEvent)
@@ -66,32 +96,42 @@ void handleSessionEvent(const SessionEvent & sessionEvent, std::ostream & out)
 
         if constexpr (std::is_same_v<T, SessionStartEvent>)
         {
-            // Do things specific to SessionStartEvent here
+            out << "Some specific data for SessionStartEvent: " << concreteEvent.someSpecificData_ << "\n";
         }
         else if constexpr (std::is_same_v<T, SessionEndEvent>)
         {
-            // Do things specific to SessionEndEvent here
+            out << "Some specific data for SessionEndEvent: " << concreteEvent.someSpecificData_ << "\n";
         }
         else
         {
             throw std::runtime_error("Unknown SessionEvent type");
         }
-    }, sessionEvent);
+    }, *sessionEvent);
 }
 
-void handleEvent(const Event & event, std::ostream & out)
+void handleEvent(const Event * event, std::ostream & out)
 {
+    if(!event)
+    {
+        throw std::invalid_argument("event pointer is null");
+    }
+
+    if(!out)
+    {
+        throw std::invalid_argument("Output stream is not valid");
+    }
+
     std::visit([&](auto&& subtype) {
         using T = std::decay_t<decltype(subtype)>;
         if constexpr (std::is_same_v<T, AuthEvent>)
         {
-            handleAuthEvent(subtype, out);
+            handleAuthEvent(&subtype, out);
         } 
         else if constexpr (std::is_same_v<T, SessionEvent>)
         {
-            handleSessionEvent(subtype, out);
+            handleSessionEvent(&subtype, out);
         }
-    }, event);
+    }, *event);
 }
 
 } // namespace purecomplib

@@ -28,7 +28,7 @@ struct IEvent
 
     IEvent(EventType type, short pid, std::chrono::system_clock::time_point timestamp);
 
-    virtual ~IEvent() = 0;
+    virtual ~IEvent() = default;                      // Virtual destructor for proper cleanup
     virtual int eventType() const = 0;
 
     template<typename DESTINATIONTYPE>
@@ -77,11 +77,7 @@ struct EventBase : public IEvent
 {
     enum{ TypeId = TYPE_ID };
 
-    EventBase(IEvent::EventType type, short pid, std::chrono::system_clock::time_point timestamp)
-        : IEvent(type, pid, timestamp)
-    {}
-
-    ~EventBase() override = 0;
+    ~EventBase() override = default;
 
     int eventType() const override { return type_; }
 
@@ -104,11 +100,11 @@ struct EventBase : public IEvent
         }
         return nullptr;
     }
+protected:
+    EventBase(IEvent::EventType type, short pid, std::chrono::system_clock::time_point timestamp)
+        : IEvent(type, pid, timestamp)
+    {}
 };
-
-template <class T, int TYPE_ID>
-EventBase<T, TYPE_ID>::~EventBase()
-{}
 
 template <class T, int TYPE_ID>
 struct SessionEventBase : public EventBase<T, TYPE_ID>
@@ -116,13 +112,7 @@ struct SessionEventBase : public EventBase<T, TYPE_ID>
     // Additional data in common for all session events
     std::string sessionId_;                         // Unique identifier for the session
 
-
-    SessionEventBase(IEvent::EventType type, short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId)
-        : EventBase<T, TYPE_ID>(type, pid, timestamp)
-        , sessionId_(sessionId)
-    {}
-
-    ~SessionEventBase() override = 0;
+    ~SessionEventBase() override = default;
 
     template<typename DESTINATIONTYPE, typename SOURCETYPE>
     static inline std::shared_ptr<DESTINATIONTYPE> castShared(std::shared_ptr<SOURCETYPE>& event)
@@ -143,24 +133,26 @@ struct SessionEventBase : public EventBase<T, TYPE_ID>
         }
         return nullptr;
     }
-};
 
-template <class T, int TYPE_ID>
-SessionEventBase<T, TYPE_ID>::~SessionEventBase()
-{}
+protected:
+    SessionEventBase(IEvent::EventType type, short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId)
+        : EventBase<T, TYPE_ID>(type, pid, timestamp)
+        , sessionId_(sessionId)
+    {}
+};
 
 struct SessionStartEvent : public SessionEventBase<SessionStartEvent, IEvent::SESSION_START>
 {
-    // Additional data specific to session start can be added here
+    int specificData_;                              // Placeholder for additional specific data
 
-    SessionStartEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId);
+    SessionStartEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId, int specificData);
 };
 
 struct SessionEndEvent : public SessionEventBase<SessionEndEvent, IEvent::SESSION_END>
 {
-    // Additional data specific to session start can be added here
+    int specificData_;                              // Placeholder for additional specific data
 
-    SessionEndEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId);
+    SessionEndEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId, int specificData);
 };
 
 template <class T, int TYPE_ID>
@@ -169,13 +161,7 @@ struct AuthEventBase : public EventBase<T, TYPE_ID>
     // Additional data in common for all auth events
     std::string userId_;                         // Unique identifier for the session
 
-
-    AuthEventBase(IEvent::EventType type, short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId)
-        : EventBase<T, TYPE_ID>(type, pid, timestamp)
-        , userId_(userId)
-    {}
-
-    ~AuthEventBase() override = 0;
+    ~AuthEventBase() override = default;
 
     template<typename DESTINATIONTYPE, typename SOURCETYPE>
     static inline std::shared_ptr<DESTINATIONTYPE> castShared(std::shared_ptr<SOURCETYPE>& event)
@@ -196,24 +182,26 @@ struct AuthEventBase : public EventBase<T, TYPE_ID>
         }
         return nullptr;
     }
-};
 
-template <class T, int TYPE_ID>
-AuthEventBase<T, TYPE_ID>::~AuthEventBase()
-{}
+protected:
+    AuthEventBase(IEvent::EventType type, short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId)
+        : EventBase<T, TYPE_ID>(type, pid, timestamp)
+        , userId_(userId)
+    {}
+};
 
 struct AuthLoginEvent : public AuthEventBase<AuthLoginEvent, IEvent::AUTH_LOGIN>
 {
-    // Additional data specific to session start can be added here
+    int specificData_;                              // Placeholder for additional specific data
 
-    AuthLoginEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId);
+    AuthLoginEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId, int specificData);
 };
 
 struct AuthLogoutEvent : public AuthEventBase<AuthLogoutEvent, IEvent::AUTH_LOGOUT>
 {
-    // Additional data specific to session start can be added here
+    int specificData_;                              // Placeholder for additional specific data
 
-    AuthLogoutEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId);
+    AuthLogoutEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId, int speceificData);
 };
 
 // Dispatcher for top level event into subtype handlers

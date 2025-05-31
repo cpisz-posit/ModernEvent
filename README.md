@@ -1,5 +1,17 @@
 # ModernEvent
 Demonstration and comparison of how one might possibly implement event types in response to recent protests to using inheritance and/or dynamic_cast.
+There is often talk of how to implement things against factors like performance, maintainability, whether or not they are tightly coupled etc. I think
+it best, in any discussion about performance to run an actual performance test. So here it is! Some of those other factors are a matter of perspective
+After all, I encountered at least one programmer who thought an entire process in one function was "more maintainable", but at least with this demo...
+
+We can see:
+- How are things instantiated
+- How are they casted if we need to
+- How might we add more data members or subtypes
+
+.. and then make opinions on those things ourselves.
+
+If one of these is cheating, let me know or modify and run yourself. I tried my best to make things apples to apples.
 
 # Benchmark
 First build using the RelWithDebugInfo preset, as that is best for profiling.
@@ -26,8 +38,6 @@ Cons
 - Requires a dynamic_cast
 - Changes to base classes may require changes to all subclasses
 
-My opinion: Meh. If we can do better easily, let's.
-
 ## Method 1 - Pure composition using std::variant and std::visit
 If we follow the directive "prefer composition over inheritance when possible" in the most naive and literal way
 
@@ -43,8 +53,6 @@ Cons
 - Must update variant lists when adding new types.
 - A bit more compile time and artifact size compared to inheritance due to std::visit and std:variant
 
-My opinion: Not worth it just to circumvent two levels of inheritance.
-
 ## Method 2 - Inheritance but no dynamic cast
 Encapsulate a static cast in the base classes via template args and in enum, rather than using a dynamic_cast
 The enum is treates as an int for comparison.
@@ -58,5 +66,4 @@ Cons
 - If a dev does not use the correct template arguments when creating a new event, this can cause UB.
 - Have to copy paste the template casting code into all superclasses for shared and unique pointers.
 
-My opinion: I like this best so far
 

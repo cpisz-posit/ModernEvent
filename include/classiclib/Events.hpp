@@ -24,7 +24,7 @@ struct EventBase
     std::chrono::system_clock::time_point timestamp_;    // Timestamp the event occured
 
     EventBase(EventType type, short pid, std::chrono::system_clock::time_point timestamp);
-    virtual ~EventBase() = default;                      // Virtual destructor for proper cleanup
+    virtual ~EventBase() = default;
 };
 
 struct SessionEventBase : public EventBase
@@ -32,21 +32,21 @@ struct SessionEventBase : public EventBase
     std::string sessionId_;                         // Unique identifier for the session
 
     SessionEventBase(EventType type, short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId);
-    virtual ~SessionEventBase() = default;          // Virtual destructor for proper cleanup
+    virtual ~SessionEventBase() = default;
 };
 
 struct SessionStartEvent : public SessionEventBase
 {
-    // Additional data specific to session start can be added here
+    int someSpecificData_;                  // Placeholder for additional specific data
 
-    SessionStartEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId);
+    SessionStartEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId, int someSpecificData);
 };
 
 struct SessionEndEvent : public SessionEventBase
 {
-    // Additional data specific to session end can be added here
+    int someSpecificData_;                  // Placeholder for additional specific data
 
-    SessionEndEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId);
+    SessionEndEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId, int someSpecificData);
 };
 
 struct AuthEventBase : public EventBase
@@ -54,21 +54,21 @@ struct AuthEventBase : public EventBase
     std::string userId_;                            // Unique identifier for the user
 
     AuthEventBase(EventType type, short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId);
-    virtual ~AuthEventBase() = default;              // Virtual destructor for proper cleanup
+    virtual ~AuthEventBase() = default;
 };
 
 struct AuthLoginEvent : public AuthEventBase
 {
-    // Additional data specific to auth login can be added here
+    int someSpecificData_;                  // Placeholder for additional specific data
 
-    AuthLoginEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId);
+    AuthLoginEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId, int someSpecificData);
 };
 
 struct AuthLogoutEvent : public AuthEventBase
 {
-    // Additional data specific to auth logout can be added here
+    int someSpecificData_;                  // Placeholder for additional specific data
 
-    AuthLogoutEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId);
+    AuthLogoutEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId, int someSpecificData);
 };
 
 

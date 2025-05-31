@@ -27,15 +27,17 @@ struct SessionEventBaseData
 struct SessionStartEvent
 {
     SessionEventBaseData sessionBaseData_;
+    int someSpecificData_;                  // Placeholder for additional specific data
 
-    // Additional data specific to session start can be added here
+    SessionStartEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string& sessionId, int someSpecificData);
 };
 
 struct SessionEndEvent
 {
     SessionEventBaseData sessionBaseData_;
+    int someSpecificData_;                  // Placeholder for additional specific data
 
-    // Additional data specific to session end can be added here
+    SessionEndEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string& sessionId, int someSpecificData);
 };
 
 // This must be updated when creating a new session event type
@@ -53,15 +55,17 @@ struct AuthEventBaseData
 struct AuthLoginEvent
 {
     AuthEventBaseData authBaseData_;
+    int someSpecificData_;                  // Placeholder for additional specific data
 
-    // Additional data specific to auth login can be added here
+    AuthLoginEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string& userId, int someSpecificData);
 };
 
 struct AuthLogoutEvent
 {
     AuthEventBaseData authBaseData_;
+    int someSpecificData_;                  // Placeholder for additional specific data
 
-    // Additional data specific to auth logout can be added here
+    AuthLogoutEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string& userId, int specificData);
 };
 
 // This must be updated when creating a new auth event type
@@ -72,7 +76,7 @@ using Event = std::variant<SessionEvent, AuthEvent>;
 
 
 /* Dispatcher for top level event into subtype handlers */
-void handleEvent(const Event & event, std::ostream & out);
+void handleEvent(const Event * event, std::ostream & out);
 
 } // end namespace eventlib
 

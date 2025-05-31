@@ -16,12 +16,14 @@ SessionEventBase::SessionEventBase(EventType type, short pid, std::chrono::syste
     , sessionId_(sessionId)
 {};
 
-SessionStartEvent::SessionStartEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId)
+SessionStartEvent::SessionStartEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId, int someSpecificData)
     : SessionEventBase(SESSION_START, pid, timestamp, sessionId)
+    , someSpecificData_(someSpecificData)
 {}
 
-SessionEndEvent::SessionEndEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId)
+SessionEndEvent::SessionEndEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & sessionId, int someSpecificData)
     : SessionEventBase(SESSION_END, pid, timestamp, sessionId)
+    , someSpecificData_(someSpecificData)
 {}
 
 AuthEventBase::AuthEventBase(EventType type, short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId)
@@ -29,27 +31,31 @@ AuthEventBase::AuthEventBase(EventType type, short pid, std::chrono::system_cloc
     , userId_(userId) 
 {}
 
-AuthLoginEvent::AuthLoginEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId)
+AuthLoginEvent::AuthLoginEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId, int someSpecificData)
     :
     AuthEventBase(AUTH_LOGIN, pid, timestamp, userId)
+    , someSpecificData_(someSpecificData)
 {}
 
-AuthLogoutEvent::AuthLogoutEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId)
+AuthLogoutEvent::AuthLogoutEvent(short pid, std::chrono::system_clock::time_point timestamp, const std::string & userId, int someSpecificData)
     :
     AuthEventBase(AUTH_LOGOUT, pid, timestamp, userId)
+    , someSpecificData_(someSpecificData)
 {}
 
 void handleAuthEvent(const AuthEventBase * authEvent, std::ostream & out)
 {
-    if(!out)
+    if (!authEvent)
     {
-        throw std::runtime_error("Output stream is not valid");
+        throw std::invalid_argument("Auth event is not valid");
     }
 
-    auto processAuthEventData = [&out](const AuthEventBase * authEvent)
+    if(!out)
     {
-        out << "User is " << authEvent->userId_ << "\n";
-    };
+        throw std::invalid_argument("Output stream is not valid");
+    }
+
+    out << "User is " << authEvent->userId_ << "\n";
 
     switch(authEvent->type_)
     {
@@ -65,9 +71,7 @@ void handleAuthEvent(const AuthEventBase * authEvent, std::ostream & out)
                 throw std::runtime_error("Cast to auth login event type failed");
             }
 
-            processAuthEventData(loginEvent);
-
-            // Do specific things with the login event
+            out << "Some specific data for auth login: " << loginEvent->someSpecificData_ << std::endl;
             break;
         }
         case EventType::AUTH_LOGOUT:
@@ -82,30 +86,30 @@ void handleAuthEvent(const AuthEventBase * authEvent, std::ostream & out)
                 throw std::runtime_error("Cast to auth logout event type failed");
             }
 
-            processAuthEventData(logoutEvent);
-
-            // Do specific things with the logout event
+            out << "Some specific data for auth logout: " << logoutEvent->someSpecificData_ << std::endl;
             break;
         }
         default:
         {
-            throw std::runtime_error("Unknown auth event type encountered");
+            throw std::invalid_argument("Unknown auth event type encountered");
             break;
         }
     }
 }
 
-void handleSessionEvent(const EventBase * sessionEvent, std::ostream & out)
+void handleSessionEvent(const SessionEventBase * sessionEvent, std::ostream & out)
 {
+    if (!sessionEvent)
+    {
+        throw std::invalid_argument("Session event is not valid");
+    }
+    
     if(!out)
     {
-        throw std::runtime_error("Output stream is not valid");
+        throw std::invalid_argument("Output stream is not valid");
     }
 
-    auto processSessionEventData = [&out](const SessionEventBase * sessionEvent)
-    {
-        out << "Session id is " << sessionEvent->sessionId_ << std::endl;
-    };
+    out << "Session id is " << sessionEvent->sessionId_ << std::endl;
 
     switch(sessionEvent->type_)
     {
@@ -121,9 +125,7 @@ void handleSessionEvent(const EventBase * sessionEvent, std::ostream & out)
                 throw std::runtime_error("Cast to session start event type failed");
             }
 
-            processSessionEventData(startEvent);
-
-            // Do specific things with the start event
+            out << "Some specific data for session start: " << startEvent->someSpecificData_ << std::endl;
             break;
         }
         case EventType::SESSION_END:
@@ -138,9 +140,7 @@ void handleSessionEvent(const EventBase * sessionEvent, std::ostream & out)
                 throw std::runtime_error("Cast to session end event type failed");
             }
 
-            processSessionEventData(endEvent);
-
-            // Do specific things with the end event
+            out << "Some specific data for session end: " << endEvent->someSpecificData_ << std::endl;
             break;
         }
         default:
@@ -153,9 +153,14 @@ void handleSessionEvent(const EventBase * sessionEvent, std::ostream & out)
 
 void handleEvent(const EventBase * event, std::ostream & out)
 {
+    if(!event)
+    {
+        throw std::invalid_argument("Event is not valid");
+    }
+
     if(!out)
     {
-        throw std::runtime_error("Output stream is not valid");
+        throw std::invalid_argument("Output stream is not valid");
     }
 
     out << "PID is " << event->pid_ << std::endl;
@@ -173,7 +178,6 @@ void handleEvent(const EventBase * event, std::ostream & out)
                then we could static_cast, but if they do mislabel then we run the risk of UB
             auto sessionEvent = static_cast<const SessionEventBase *>(event);
             */
-
             auto sessionEvent = dynamic_cast<const SessionEventBase *>(event);
             if(!sessionEvent) 
             { 
@@ -190,7 +194,6 @@ void handleEvent(const EventBase * event, std::ostream & out)
                then we could static_cast, but if they do mislabel then we run the risk of UB
             auto authEvent = static_cast<const AuthEventBase *>(event);
             */
-
             auto authEvent = dynamic_cast<const AuthEventBase *>(event);
             if(!authEvent)
             { 
@@ -202,7 +205,7 @@ void handleEvent(const EventBase * event, std::ostream & out)
         }
         default:
             // Handle unknown event type
-            throw std::runtime_error("Unknown event type encountered");
+            throw std::invalid_argument("Unknown event type encountered");
             break;
     }
 }
